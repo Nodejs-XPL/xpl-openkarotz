@@ -52,8 +52,8 @@ commander.command('*').description("Start processing Karotz").action(
 
           if (message.bodyName == "karotz.ears") {
             earsSemaphore.take(function() {
-              var left = body.left && parseInt(body.left);
-              var right = body.right && parseInt(body.right);
+              var left = body.left && parseInt(body.left, 10);
+              var right = body.right && parseInt(body.right, 10);
 
               debug("Karotz ears left=", left, " right=", right);
 
@@ -107,6 +107,8 @@ commander.command('*').description("Start processing Karotz").action(
 
             debug("Karotz sound soundId=", body.soundId, " url=", body.url);
 
+            var repeat = body.repeat && parseInt(body.repeat, 10);
+
             function playSound() {
               soundSemaphore.take(function() {
                 karotz.sound(body.soundId, body.url, false, function(error) {
@@ -117,8 +119,8 @@ commander.command('*').description("Start processing Karotz").action(
                     return;
                   }
 
-                  if (body.repeat > 0) {
-                    body.repeat--;
+                  if (repeat > 1) {
+                    repeat--;
 
                     setImmediate(playSound);
                   }
