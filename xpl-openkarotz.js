@@ -114,6 +114,7 @@ commander.command('*').description("Start processing Karotz").action(
 
               soundSemaphore.take(function() {
                 karotz.sound(body.soundId, body.url, true, function(error) {
+                  debug("Karotz sound end");
                   soundSemaphore.leave();
 
                   if (error) {
