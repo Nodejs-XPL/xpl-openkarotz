@@ -107,15 +107,26 @@ commander.command('*').description("Start processing Karotz").action(
 
             debug("Karotz sound soundId=", body.soundId, " url=", body.url);
 
-            soundSemaphore.take(function() {
-              karotz.sound(body.soundId, body.url, false, function(error) {
-                soundSemaphore.leave();
+            function playSound() {
+              soundSemaphore.take(function() {
+                karotz.sound(body.soundId, body.url, false, function(error) {
+                  soundSemaphore.leave();
 
-                if (error) {
-                  console.error(error);
-                }
+                  if (error) {
+                    console.error(error);
+                    return;
+                  }
+
+                  if (body.repeat > 0) {
+                    body.repeat--;
+
+                    setImmediate(playSound);
+                  }
+                });
               });
-            });
+            }
+
+            playSound();
             return;
           }
 
