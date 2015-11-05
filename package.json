@@ -1,0 +1,27 @@
+{
+  "name": "xpl-xmpp",
+  "version": "1.0.0",
+  "description": "XPL bridge for openkarotz",
+  "bin": {
+  	"xpl-openkarotz": "./bin/xpl-openkarotz"
+  },
+  "dependencies": {
+	  "xpl-api": ">=1.0.13",
+	  "commander": "~2.3",
+	  "debug": "latest",
+	  "openkarotz": "latest",
+	  "semaphore": "latest"
+  },
+  "keywords": [
+    "XPL",
+    "xmpp", "hangout"
+  ],
+  "files": [
+    "xpl-openkarotz.js",
+    "bin/xpl-openkarotz"
+	],
+  "repository": { "type": "git", "url": "https://github.com/oeuillot/xpl-openkarotz.git" },
+  "author": "Olivier Oeuillot",
+  "license": "GPL",
+  "readmeFilename": "README.md"
+}
