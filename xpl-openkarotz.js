@@ -2,7 +2,7 @@ var Xpl = require("xpl-api");
 var commander = require('commander');
 var OpenKarotz = require('openkarotz');
 var os = require('os');
-var debug = require('debug')('xpl-xmpp');
+var debug = require('debug')('xpl-karotz');
 var Semaphore = require('semaphore');
 
 commander.version(require("./package.json").version);
@@ -28,7 +28,7 @@ commander.command('*').description("Start processing Karotz").action(
           hostName = hostName.substring(0, hostName.indexOf('.'));
         }
 
-        commander.xplSource = "xmpp." + hostName;
+        commander.xplSource = "karotz." + hostName;
       }
 
       var xpl = new Xpl(commander);
@@ -55,6 +55,8 @@ commander.command('*').description("Start processing Karotz").action(
               var left = body.left && parseInt(body.left);
               var right = body.right && parseInt(body.right);
 
+              debug("Karotz ears left=", left, " right=", right);
+
               karotz.ears(left || 0, right || 0, function(error) {
                 earsSemaphore.leave();
 
@@ -67,6 +69,9 @@ commander.command('*').description("Start processing Karotz").action(
           }
 
           if (message.bodyName == "karotz.reset-ears") {
+
+            debug("Karotz ears RESET");
+
             earsSemaphore.take(function() {
               karotz.ears_reset(function(error) {
                 earsSemaphore.leave();
@@ -82,6 +87,8 @@ commander.command('*').description("Start processing Karotz").action(
           if (message.bodyName == "karotz.tts") {
             var ttsMessage = body.message || "Le message est mal défini";
 
+            debug("Karotz tts message=", ttsMessage, " voice=", body.voice);
+
             ttsSemaphore.take(function() {
               karotz.tts(ttsMessage, body.voice, false, function(error) {
                 ttsSemaphore.leave();
@@ -95,6 +102,9 @@ commander.command('*').description("Start processing Karotz").action(
           }
 
           if (message.bodyName == "karotz.sound") {
+
+            debug("Karotz sound soundId=", body.soundId, " url=", body.url);
+
             soundSemaphore.take(function() {
               karotz.sound(body.soundId, body.url, false, function(error) {
                 soundSemaphore.leave();
@@ -107,6 +117,7 @@ commander.command('*').description("Start processing Karotz").action(
             return;
           }
 
+          debug("Karotz UNKNOWN COMMAND", message.bodyName);
         });
       });
     });
