@@ -105,13 +105,15 @@ commander.command('*').description("Start processing Karotz").action(
 
           if (message.bodyName == "karotz.sound") {
 
-            debug("Karotz sound soundId=", body.soundId, " url=", body.url);
-
             var repeat = body.repeat && parseInt(body.repeat, 10);
 
             function playSound() {
+
+              debug("Karotz sound soundId=", body.soundId, " url=", body.url +
+                  " repeat=" + repeat);
+
               soundSemaphore.take(function() {
-                karotz.sound(body.soundId, body.url, false, function(error) {
+                karotz.sound(body.soundId, body.url, true, function(error) {
                   soundSemaphore.leave();
 
                   if (error) {
