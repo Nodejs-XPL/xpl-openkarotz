@@ -80,8 +80,10 @@ commander.command('*').description("Start processing Karotz").action(
           }
 
           if (message.bodyName == "karotz.tts") {
+            var ttsMessage = body.message || "Le message est mal défini";
+
             ttsSemaphore.take(function() {
-              karotz.tts(body.text, body.voice, false, function(error) {
+              karotz.tts(ttsMessage, body.voice, false, function(error) {
                 ttsSemaphore.leave();
 
                 if (error) {
