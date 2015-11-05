@@ -1,6 +1,6 @@
 var Xpl = require("xpl-api");
 var commander = require('commander');
-var HangoutsBot = require('openkarotz');
+var OpenKarotz = require('openkarotz');
 var os = require('os');
 var debug = require('debug')('xpl-xmpp');
 var Semaphore = require('semaphore');
@@ -15,7 +15,7 @@ commander.command('*').description("Start processing Karotz").action(
     function() {
       console.log("Start");
 
-      var karotz = new openkarotz(commander.host);
+      var karotz = new OpenKarotz(commander.host);
 
       var earsSemaphore = Semaphore(1);
       var ledSemaphore = Semaphore(1);
