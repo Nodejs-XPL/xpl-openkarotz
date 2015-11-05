@@ -93,6 +93,8 @@ commander.command('*').description("Start processing Karotz").action(
               karotz.tts(ttsMessage, body.voice, false, function(error) {
                 ttsSemaphore.leave();
 
+                debug("Karotz tts returned");
+
                 if (error) {
                   console.error(error);
                 }
