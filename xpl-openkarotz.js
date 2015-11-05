@@ -105,34 +105,19 @@ commander.command('*').description("Start processing Karotz").action(
 
           if (message.bodyName == "karotz.sound") {
 
-            var repeat = body.repeat && parseInt(body.repeat, 10);
+            debug("Karotz sound soundId=", body.soundId, " url=", body.url);
 
-            function playSound() {
+            soundSemaphore.take(function() {
+              karotz.sound(body.soundId, body.url, function(error) {
+                debug("Karotz sound end");
+                soundSemaphore.leave();
 
-              debug("Karotz sound soundId=", body.soundId, " url=", body.url +
-                  " repeat=" + repeat);
-
-              soundSemaphore.take(function() {
-                karotz.sound(body.soundId, body.url, function(error) {
-                  debug("Karotz sound end");
-                  soundSemaphore.leave();
-
-                  if (error) {
-                    console.error(error);
-                    return;
-                  }
-
-                  if (repeat > 1) {
-                    repeat--;
-
-                    setImmediate(playSound);
-                  }
-                });
+                if (error) {
+                  console.error(error);
+                  return;
+                }
               });
-            }
-
-            playSound();
-            return;
+            });
           }
 
           debug("Karotz UNKNOWN COMMAND", message.bodyName);
