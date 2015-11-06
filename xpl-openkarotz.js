@@ -63,7 +63,7 @@ commander.command('*').description("Start processing Karotz").action(
 
           var body = message.body;
 
-          var uuid = body.uuid || uuid.v4();
+          var uuid = body.uuid || UUID.v4();
 
           if (body.command == "ears") {
             earsSemaphore.take(function() {
