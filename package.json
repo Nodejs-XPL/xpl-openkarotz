@@ -10,7 +10,8 @@
 	  "commander": "~2.3",
 	  "debug": "latest",
 	  "openkarotz": "latest",
-	  "semaphore": "latest"
+	  "semaphore": "latest",
+	  "uuid": "latest"
   },
   "keywords": [
     "XPL",

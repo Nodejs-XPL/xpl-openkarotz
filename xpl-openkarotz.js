@@ -4,6 +4,7 @@ var OpenKarotz = require('openkarotz');
 var os = require('os');
 var debug = require('debug')('xpl-karotz');
 var Semaphore = require('semaphore');
+var UUID = require('uuid');
 
 commander.version(require("./package.json").version);
 
@@ -44,21 +45,39 @@ commander.command('*').description("Start processing Karotz").action(
           return;
         }
 
+        function sendPhase(uuid, type, phase) {
+          xpl.sendXplStat({
+            "command" : type,
+            "phase" : phase,
+            "uuid" : uuid
+          }, "karotz.basic");
+        }
+
         console.log("Xpl bind succeed ");
         xpl.on("xpl:xpl-cmnd", function(message) {
           debug("Receive XPL", message);
 
+          if (message.bodyName !== "karotz.basic") {
+            return;
+          }
+
           var body = message.body;
 
-          if (message.bodyName == "karotz.ears") {
+          var uuid = body.uuid || uuid.v4();
+
+          if (body.command == "ears") {
             earsSemaphore.take(function() {
               var left = body.left && parseInt(body.left, 10);
               var right = body.right && parseInt(body.right, 10);
 
               debug("Karotz ears left=", left, " right=", right);
 
+              sendPhase(uuid, "ears", "begin");
+
               karotz.ears(left || 0, right || 0, function(error) {
                 earsSemaphore.leave();
+
+                sendPhase(uuid, "ears", "end");
 
                 if (error) {
                   console.error(error);
@@ -68,13 +87,19 @@ commander.command('*').description("Start processing Karotz").action(
             return;
           }
 
-          if (message.bodyName == "karotz.reset-ears") {
+          if (body.command == "reset-ears") {
 
             debug("Karotz ears RESET");
 
             earsSemaphore.take(function() {
+
+              sendPhase(uuid, "ears-reset", "begin");
+
               karotz.ears_reset(function(error) {
+
                 earsSemaphore.leave();
+
+                sendPhase(uuid, "ears-reset", "end");
 
                 if (error) {
                   console.error(error);
@@ -84,14 +109,19 @@ commander.command('*').description("Start processing Karotz").action(
             return;
           }
 
-          if (message.bodyName == "karotz.tts") {
+          if (body.command == "tts") {
             var ttsMessage = body.message || "Le message est mal défini";
 
             debug("Karotz tts message=", ttsMessage, " voice=", body.voice);
 
             ttsSemaphore.take(function() {
+
+              sendPhase(uuid, "tts", "begin");
+
               karotz.tts(ttsMessage, body.voice, false, function(error) {
                 ttsSemaphore.leave();
+
+                sendPhase(uuid, "tts", "end");
 
                 debug("Karotz tts returned");
 
@@ -103,14 +133,17 @@ commander.command('*').description("Start processing Karotz").action(
             return;
           }
 
-          if (message.bodyName == "karotz.sound") {
-
+          if (body.command == "sound") {
             debug("Karotz sound soundId=", body.soundId, " url=", body.url);
 
             soundSemaphore.take(function() {
+              sendPhase(uuid, "sound", "begin");
+
               karotz.sound(body.soundId, body.url, function(error) {
                 debug("Karotz sound end");
                 soundSemaphore.leave();
+
+                sendPhase(uuid, "sound", "end");
 
                 if (error) {
                   console.error(error);
@@ -120,7 +153,7 @@ commander.command('*').description("Start processing Karotz").action(
             });
           }
 
-          debug("Karotz UNKNOWN COMMAND", message.bodyName);
+          debug("Karotz UNKNOWN COMMAND", body.command);
         });
       });
     });
