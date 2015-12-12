@@ -77,13 +77,13 @@ commander.command('*').description("Start processing Karotz").action(
 
               sendPhase(uuid, "ears", "begin");
 
-              karotz.ears(left || 0, right || 0, function(error) {
+              karotz.ears(left || 0, right || 0, function(error, message) {
                 earsSemaphore.leave();
 
                 sendPhase(uuid, "ears", "end");
 
                 if (error) {
-                  console.error("Ears error", error);
+                  console.error("Ears error", error, message);
                 }
               });
             });
@@ -98,14 +98,14 @@ commander.command('*').description("Start processing Karotz").action(
 
               sendPhase(uuid, "ears-reset", "begin");
 
-              karotz.ears_reset(function(error) {
+              karotz.ears_reset(function(error, message) {
 
                 earsSemaphore.leave();
 
                 sendPhase(uuid, "ears-reset", "end");
 
                 if (error) {
-                  console.error("ResetEars error", error);
+                  console.error("ResetEars error", error, message);
                 }
               });
             });
@@ -121,7 +121,7 @@ commander.command('*').description("Start processing Karotz").action(
 
               sendPhase(uuid, "tts", "begin");
 
-              karotz.tts(ttsMessage, body.voice, false, function(error) {
+              karotz.tts(ttsMessage, body.voice, false, function(error, message) {
                 ttsSemaphore.leave();
 
                 sendPhase(uuid, "tts", "end");
@@ -129,7 +129,7 @@ commander.command('*').description("Start processing Karotz").action(
                 debug("Karotz tts returned");
 
                 if (error) {
-                  console.error(error);
+                  console.error(error, message);
                 }
               });
             });
@@ -142,28 +142,29 @@ commander.command('*').description("Start processing Karotz").action(
             soundSemaphore.take(function() {
               sendPhase(uuid, "sound", "begin");
 
-              karotz.sound(body.soundId, body.url, function(error) {
+              karotz.sound(body.soundId, body.url, function(error, message) {
                 debug("Karotz sound end");
                 soundSemaphore.leave();
 
                 sendPhase(uuid, "sound", "end");
 
                 if (error) {
-                  console.error(error);
+                  console.error(error, message);
                   return;
                 }
               });
             });
+            return;
           }
 
           if (body.command == "fixedLed") {
             debug("Karotz fixedLed current=", body.current);
 
-            karotz.fixedLed(body.current, function(error) {
+            karotz.fixedLed(body.current, function(error, message) {
               debug("Karotz fixedLed end");
 
               if (error) {
-                console.error("FixedLed error", error);
+                console.error("FixedLed error", error, message);
                 return;
               }
             });
@@ -173,11 +174,11 @@ commander.command('*').description("Start processing Karotz").action(
             debug("Karotz pulsedLed current=", body.current, " period=",
                 body.period);
 
-            karotz.pulseLed(body.current, body.period || 1000, function(error) {
+            karotz.pulseLed(body.current, body.period || 1000, function(error, message) {
               debug("Karotz pulsedLed end");
 
               if (error) {
-                console.error("PulseLed error", error);
+                console.error("PulseLed error", error, message);
                 return;
               }
             });
