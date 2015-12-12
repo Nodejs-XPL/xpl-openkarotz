@@ -83,7 +83,7 @@ commander.command('*').description("Start processing Karotz").action(
                 sendPhase(uuid, "ears", "end");
 
                 if (error) {
-                  console.error(error);
+                  console.error("Ears error", error);
                 }
               });
             });
@@ -105,7 +105,7 @@ commander.command('*').description("Start processing Karotz").action(
                 sendPhase(uuid, "ears-reset", "end");
 
                 if (error) {
-                  console.error(error);
+                  console.error("ResetEars error", error);
                 }
               });
             });
@@ -157,28 +157,31 @@ commander.command('*').description("Start processing Karotz").action(
           }
 
           if (body.command == "fixedLed") {
-            debug("Karotz fixedLed " + body.current);
+            debug("Karotz fixedLed current=", body.current);
 
             karotz.fixedLed(body.current, function(error) {
               debug("Karotz fixedLed end");
 
               if (error) {
-                console.error(error);
+                console.error("FixedLed error", error);
                 return;
               }
             });
+            return;
           }
           if (body.command == "pulsedLed") {
-            debug("Karotz pulsedLed " + body.current);
+            debug("Karotz pulsedLed current=", body.current, " period=",
+                body.period);
 
-            karotz.pulseLed(body.current, function(error) {
+            karotz.pulseLed(body.current, body.period || 1000, function(error) {
               debug("Karotz pulsedLed end");
 
               if (error) {
-                console.error(error);
+                console.error("PulseLed error", error);
                 return;
               }
             });
+            return;
           }
 
           debug("Karotz UNKNOWN COMMAND", body.command);
