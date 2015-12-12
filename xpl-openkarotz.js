@@ -168,11 +168,11 @@ commander.command('*').description("Start processing Karotz").action(
               }
             });
           }
-          if (body.command == "pulseLed") {
-            debug("Karotz pulseLed " + body.current);
+          if (body.command == "pulsedLed") {
+            debug("Karotz pulsedLed " + body.current);
 
             karotz.pulseLed(body.current, function(error) {
-              debug("Karotz pulseLed end");
+              debug("Karotz pulsedLed end");
 
               if (error) {
                 console.error(error);
