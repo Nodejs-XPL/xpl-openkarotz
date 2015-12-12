@@ -9,6 +9,7 @@ var UUID = require('uuid');
 commander.version(require("./package.json").version);
 
 commander.option("--host <host>", "Karotz host");
+commander.option("-a, --deviceAliases <aliases>", "Devices aliases");
 
 Xpl.fillCommander(commander);
 
@@ -22,6 +23,8 @@ commander.command('*').description("Start processing Karotz").action(
       var ledSemaphore = Semaphore(1);
       var ttsSemaphore = Semaphore(1);
       var soundSemaphore = Semaphore(1);
+
+      commander.deviceAliases = Xpl.loadDeviceAliases(commander.deviceAliases);
 
       if (!commander.xplSource) {
         var hostName = os.hostname();
@@ -150,6 +153,31 @@ commander.command('*').description("Start processing Karotz").action(
                   return;
                 }
               });
+            });
+          }
+
+          if (body.command == "fixedLed") {
+            debug("Karotz fixedLed " + body.current);
+
+            karotz.fixedLed(body.current, function(error) {
+              debug("Karotz fixedLed end");
+
+              if (error) {
+                console.error(error);
+                return;
+              }
+            });
+          }
+          if (body.command == "pulseLed") {
+            debug("Karotz pulseLed " + body.current);
+
+            karotz.pulseLed(body.current, function(error) {
+              debug("Karotz pulseLed end");
+
+              if (error) {
+                console.error(error);
+                return;
+              }
             });
           }
 
