@@ -174,7 +174,7 @@ commander.command('*').description("Start processing Karotz").action(
             debug("Karotz pulsedLed current=", body.current, " period=",
                 body.period);
 
-            karotz.pulseLed(body.current, body.period || 1000, function(error, message) {
+            karotz.pulsedLed(body.current, body.period || 1000, function(error, message) {
               debug("Karotz pulsedLed end");
 
               if (error) {
