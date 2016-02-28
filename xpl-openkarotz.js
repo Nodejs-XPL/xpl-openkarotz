@@ -3,7 +3,7 @@ var commander = require('commander');
 var OpenKarotz = require('openkarotz');
 var os = require('os');
 var debug = require('debug')('xpl-karotz');
-var Semaphore = require('semaphore');
+var Semaphore = require('timeout-semaphore');
 var UUID = require('uuid');
 
 commander.version(require("./package.json").version);
@@ -19,10 +19,10 @@ commander.command('*').description("Start processing Karotz").action(
 
       var karotz = new OpenKarotz(commander.host);
 
-      var earsSemaphore = Semaphore(1);
-      var ledSemaphore = Semaphore(1);
-      var ttsSemaphore = Semaphore(1);
-      var soundSemaphore = Semaphore(1);
+      var earsSemaphore = Semaphore(1, 1000*60);
+      var ledSemaphore = Semaphore(1, 1000*60);
+      var ttsSemaphore = Semaphore(1, 1000*60);
+      var soundSemaphore = Semaphore(1, 1000*60);
 
       commander.deviceAliases = Xpl.loadDeviceAliases(commander.deviceAliases);
 
@@ -69,7 +69,7 @@ commander.command('*').description("Start processing Karotz").action(
           var uuid = body.uuid || UUID.v4();
 
           if (body.command == "ears") {
-            earsSemaphore.take(function() {
+            earsSemaphore.take(function(leaveFunc) {
               var left = body.left && parseInt(body.left, 10);
               var right = body.right && parseInt(body.right, 10);
 
@@ -78,7 +78,7 @@ commander.command('*').description("Start processing Karotz").action(
               sendPhase(uuid, "ears", "begin");
 
               karotz.ears(left || 0, right || 0, function(error, message) {
-                earsSemaphore.leave();
+                leaveFunc();
 
                 sendPhase(uuid, "ears", "end");
 
@@ -94,13 +94,12 @@ commander.command('*').description("Start processing Karotz").action(
 
             debug("Karotz ears RESET");
 
-            earsSemaphore.take(function() {
+            earsSemaphore.take(function(leaveFunc) {
 
               sendPhase(uuid, "ears-reset", "begin");
 
               karotz.ears_reset(function(error, message) {
-
-                earsSemaphore.leave();
+                leaveFunc();
 
                 sendPhase(uuid, "ears-reset", "end");
 
@@ -117,12 +116,12 @@ commander.command('*').description("Start processing Karotz").action(
 
             debug("Karotz tts message=", ttsMessage, " voice=", body.voice);
 
-            ttsSemaphore.take(function() {
+            ttsSemaphore.take(function(leaveFunc) {
 
               sendPhase(uuid, "tts", "begin");
 
               karotz.tts(ttsMessage, body.voice, false, function(error, message) {
-                ttsSemaphore.leave();
+                leaveFunc();
 
                 sendPhase(uuid, "tts", "end");
 
@@ -139,12 +138,12 @@ commander.command('*').description("Start processing Karotz").action(
           if (body.command == "sound") {
             debug("Karotz sound soundId=", body.soundId, " url=", body.url);
 
-            soundSemaphore.take(function() {
+            soundSemaphore.take(function(leaveFunc) {
               sendPhase(uuid, "sound", "begin");
 
               karotz.sound(body.soundId, body.url, function(error, message) {
                 debug("Karotz sound end");
-                soundSemaphore.leave();
+                leaveFunc();
 
                 sendPhase(uuid, "sound", "end");
 
